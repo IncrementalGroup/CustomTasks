@@ -1,0 +1,42 @@
+{
+    "manifestVersion": 1,
+    "id": "DeployRetailPackage",
+    "version": "1.0.11",
+    "name": "Deploy D365 FO Retail Package",
+    "description": "An Azure DevOps Release task that installs a deployable package to a environment",
+    "publisher": "IncrementalGroup",
+    "content": {
+        "details": {
+            "path": "overview.md"
+        }
+    },
+    "categories": [
+        "Azure Pipelines"
+    ],
+    "targets": [
+        {
+            "id": "Microsoft.VisualStudio.Services"
+        }
+    ],
+    "icons": {
+        "default": "icon.jpg"
+    },
+    "contributions": [
+        {
+            "id": "DeployRetailPackage",
+            "type": "ms.vss-distributed-task.task",
+            "targets": [
+                "ms.vss-distributed-task.tasks"
+            ],
+            "properties": {
+                "name": "DeployAXPackage"
+            }
+        }
+    ],
+    "files": [
+        {
+            "path": "DeployAXPackage"
+        }
+    ],
+    "public": true
+}
