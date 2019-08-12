@@ -1,10 +1,10 @@
 {
-  "id": "426ea3c0-b8fb-11e9-99a4-7f379f5d7f10",
+  "id": "a4df88ff-4c59-4b3d-85b0-c22b35db7a19",
   "name": "DeployAXPackage",
   "friendlyName": "Deploy D365 FO AX Package",
   "description": "An Azure DevOps Release task that installs a deployable package to a environment",
   "author": "IncrementalGroup",
-  "helpMarkDown": "Replace with markdown to show in help",
+  "helpMarkDown": "[More Information on Task](https://github.com/IncrementalGroup/CustomTasks/blob/master/README.md)",
   "category":"Deploy",
   "visibility": [
     "Release"
@@ -22,7 +22,7 @@
       "name": "SourceFolder",
       "type": "filePath",
       "label": "Source Files",
-      "defaultValue": "Build\\Pacakges",
+      "defaultValue": "<Build>\\Packages",
       "required": false,
       "helpMarkDown": "Directory of deployable package from build"
     },
