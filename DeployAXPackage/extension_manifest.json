@@ -1,0 +1,18 @@
+{
+    "$schema": "http://json.schemastore.org/vsix-publish",
+    "categories": [
+        "Azure Pipelines"
+    ],
+    "identity": {
+        "internalName": "DeployAXPackage",
+        "tags": [
+            "Deploy task",
+            "Dynamics365"
+        ]
+    },
+    "overview": "../README.md",
+    "priceCategory": "free",
+    "publisher": "IncrementalGroup",
+    "private": false,
+    "repo": "https://github.com/IncrementalGroup/CustomTasks"
+}
