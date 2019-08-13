@@ -10,7 +10,7 @@
             "Dynamics365"
         ]
     },
-    "overview": "../README.md",
+    "overview": "README.md",
     "priceCategory": "free",
     "publisher": "IncrementalGroup",
     "private": false,
