@@ -7,7 +7,7 @@
         $Destination
     )
 
-function Install-Package ($ver, $Folder) {
+function Install-Package ($ver, $Folder, $status) {
      <#
 		.SYNOPSIS
 		Deploys AX Package to local machine
@@ -72,25 +72,34 @@ function Install-Package ($ver, $Folder) {
  
     $xml.Save($topologyFile)
 
-    #generate runbook
-    Add-Content -Path $logFile -Value ((Get-Date -Format "dd-MM-yyyy hh:mm") + " Generating runbook  " + $runbookId + " " + $runbookFile)
-    .\AXUpdateInstaller.exe generate -runbookid="$runbookid" -topologyfile="$topologyFile" -servicemodelfile="$serviceModelFile" -runbookfile="$runbookFile"
+    if($status -eq "Reinstall")
+    {
+        $LocalLog = 'RestoreLogs.Log'
+        .\AXUpdateInstaller.exe executerestore -runbookid="$runbookid" > $localLog
+    }
+    else{
+        $LocalLog = 'AXDeployment.Log'
+        #generate runbook
+        Add-Content -Path $logFile -Value ((Get-Date -Format "dd-MM-yyyy hh:mm") + " Generating runbook  " + $runbookId + " " + $runbookFile)
+        .\AXUpdateInstaller.exe generate -runbookid="$runbookid" -topologyfile="$topologyFile" -servicemodelfile="$serviceModelFile" -runbookfile="$runbookFile"
 
-    #import runbook
-    .\AXUpdateInstaller.exe import -runbookfile="$runbookFile"
-        
-    #run runbook
-    Add-Content -Path $logFile -Value ((Get-Date -Format "dd-MM-yyyy hh:mm") + " Excuting runbook  " + $runbookId)
-    .\AXUpdateInstaller.exe execute -runbookid="$runbookid" > 'AXDeployment.Log' #start logging for package deployment
+        #import runbook
+        .\AXUpdateInstaller.exe import -runbookfile="$runbookFile"
+            
+        #run runbook
+        Add-Content -Path $logFile -Value ((Get-Date -Format "dd-MM-yyyy hh:mm") + " Excuting runbook  " + $runbookId)
+        .\AXUpdateInstaller.exe execute -runbookid="$runbookid" > $LocalLog #start logging for package deployment
+    }
     
     Write-Host "Deployment has finished with code: " $LastExitCode
     if ($LastExitCode -ne 0) {
-        $axlog =  Join-Path $Package "AXDeployment.Log"
+        $axlog =  Join-Path $Package $LocalLog
+        $Log2 = $LocalLog -replace '.Log', "2.Log"
         Write-Host "##vso[task.uploadfile]$axlog"
         Write-Host "##vso[task.uploadfile]$logfile"
         if(Select-String -Path .\AXDeployment.Log -Pattern 'The step: 8 is in failed state')
         {
-            .\AXUpdateInstaller.exe execute -runbookId="$runbookId" -rerunstep=8 > 'AXDeployment_Attempt2.Log' #start logging for package deployment
+            .\AXUpdateInstaller.exe execute -runbookId="$runbookId" -rerunstep=8 > $Log2 #start logging for package deployment
 			if($LastExitCode -ne 0)
 			{
 				throw "Deployment failed with exit code $LastExitCode. Please check logs $folder."   
@@ -107,6 +116,7 @@ function Install-Package ($ver, $Folder) {
     .\AXUpdateInstaller.exe export -runbookid="$runbookid" -runbookfile="$runbookFile"
 
 }
+
 ##if destination drive folder doesnt exists check each drive for deployablepackages folder
 if((Test-Path $Destination) -eq $false)
 {
@@ -122,6 +132,7 @@ if((Test-Path $Destination) -eq $false)
     }
 }
 
+$status = "Install"
 Write-Output $Destination
 
 $logfile = Join-Path $Destination "PSDeploy.log"
@@ -146,14 +157,17 @@ catch
     #Delete folder and exit script
     Remove-Item -Path $DestinationFolder -Recurse
     Add-Content -Path $logfile -Value ((Get-Date -Format "dd-MM-yyyy hh:mm") + " Package has already been installed " + $DestinationFolder)
-    Write-Output "Package has already been installed exiting release" $currentVersionFile.HotfixInstallationInfo.Name
+    Write-Output "Package has already been installed " $currentVersionFile.HotfixInstallationInfo.Name
+    $status= "Reinstall"
     ##Exit
 }
 
 $Package = Join-Path $Destination $currentVersionFile.HotfixInstallationInfo.Name
 Add-Content -Path $logfile -Value ((Get-Date -Format "dd-MM-yyyy hh:mm") + " Moved and renamed folder, now " + $Package )
 #run function to deploy package  
-Install-Package $currentVersionFile.HotfixInstallationInfo.Name $Package
+Install-Package $currentVersionFile.HotfixInstallationInfo.Name $Package $status
+
+
 
 #ending deployment updating and upload any logs
 Add-Content -Path $logfile -Value ((Get-Date -Format "dd-MM-yyyy hh:mm") + " Deployment has complete Errors: " + $Error)
