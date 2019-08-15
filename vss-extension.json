@@ -1,7 +1,7 @@
 {
     "manifestVersion": 1,
     "id": "DeployAXPackage",
-    "version": "0.0.2",
+    "version": "0.0.4",
     "name": "Deploy D365 FO AX Package",
     "description": "An Azure DevOps Release task that installs a deployable package to a environment",
     "publisher": "IncrementalGroup",
